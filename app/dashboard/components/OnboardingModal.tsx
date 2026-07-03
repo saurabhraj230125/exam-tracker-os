@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Loader2, Target } from 'lucide-react';
+import { Loader2, Crosshair } from 'lucide-react';
 
-// FIX: We explicitly define the allowed types for the exam so TypeScript is happy.
 type AllowedExam = 'JEE' | 'NEET' | 'UPSC' | 'SAT';
 
 interface FormData {
@@ -16,18 +15,26 @@ interface FormData {
   state: string;
 }
 
-export default function OnboardingModal({ userId }: { userId: string }) {
+export default function OnboardingModal({ 
+  userId,
+  detectedCity = '',
+  detectedState = ''
+}: { 
+  userId: string;
+  detectedCity?: string;
+  detectedState?: string;
+}) {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   
-  // FIX: We apply the FormData interface to our state
+  // 🛡️ THE MAGIC INTERCEPT: The state initializes with the Vercel Edge data!
   const [formData, setFormData] = useState<FormData>({
     full_name: '',
     target_exam: 'JEE',
     target_year: new Date().getFullYear() + 1,
-    city: '',
-    state: ''
+    city: detectedCity,
+    state: detectedState
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +43,6 @@ export default function OnboardingModal({ userId }: { userId: string }) {
 
     setLoading(true);
     
-    // Using upsert in case the auth trigger didn't create the profile row yet
     const { error } = await supabase
       .from('profiles')
       .upsert({
@@ -54,38 +60,39 @@ export default function OnboardingModal({ userId }: { userId: string }) {
       return;
     }
 
-    // Refresh the page to clear the gatekeeper modal
     router.refresh();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg bg-[#0a0d12] border border-gray-800 rounded-3xl shadow-[0_0_50px_rgba(16,185,129,0.05)] overflow-hidden animate-in fade-in zoom-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#05070a]/90 backdrop-blur-md p-4">
+      {/* Tactical Glow Effect */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-rose-600/10 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="relative z-10 w-full max-w-lg bg-[#0a0d12] border border-gray-800 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in fade-in zoom-in duration-300">
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="bg-emerald-500/10 p-2 rounded-xl border border-emerald-500/20">
-              <Target className="h-5 w-5 text-emerald-400" />
+            <div className="bg-rose-500/10 p-2 rounded-xl border border-rose-500/20 shadow-[0_0_20px_rgba(225,29,72,0.15)]">
+              <Crosshair className="h-5 w-5 text-rose-500" />
             </div>
             <div>
               <h2 className="text-xl font-black text-white uppercase tracking-wider">Initialize Profile</h2>
-              <p className="text-xs text-gray-500">Configure your local leaderboards.</p>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Configure your local leaderboards.</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Display Name</label>
-              <input type="text" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} className="w-full bg-[#11161d] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-emerald-500 outline-none" placeholder="Rahul Kumar" required />
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Operator Name</label>
+              <input type="text" value={formData.full_name} onChange={e => setFormData({...formData, full_name: e.target.value})} className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/50 outline-none transition-all" placeholder="Rahul Kumar" required />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Target Exam</label>
-                {/* FIX: We cast the event value to AllowedExam to satisfy TypeScript */}
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Target Protocol</label>
                 <select 
                   value={formData.target_exam} 
                   onChange={e => setFormData({...formData, target_exam: e.target.value as AllowedExam})} 
-                  className="w-full bg-[#11161d] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-emerald-500 outline-none appearance-none"
+                  className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500/50 outline-none appearance-none transition-all"
                 >
                   <option value="JEE">JEE Main/Adv</option>
                   <option value="NEET">NEET</option>
@@ -95,22 +102,22 @@ export default function OnboardingModal({ userId }: { userId: string }) {
               </div>
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Target Year</label>
-                <input type="number" value={formData.target_year} onChange={e => setFormData({...formData, target_year: parseInt(e.target.value)})} className="w-full bg-[#11161d] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-emerald-500 outline-none" required />
+                <input type="number" value={formData.target_year} onChange={e => setFormData({...formData, target_year: parseInt(e.target.value)})} className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500/50 outline-none transition-all" required />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">City</label>
-                <input type="text" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-[#11161d] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-emerald-500 outline-none" placeholder="Bokaro" required />
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Sector (City)</label>
+                <input type="text" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500/50 outline-none transition-all" placeholder="Bokaro" required />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">State</label>
-                <input type="text" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full bg-[#11161d] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-emerald-500 outline-none" placeholder="Jharkhand" required />
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1.5">Region (State)</label>
+                <input type="text" value={formData.state} onChange={e => setFormData({...formData, state: e.target.value})} className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-500/50 outline-none transition-all" placeholder="Jharkhand" required />
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="w-full mt-6 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-[0.2em] text-xs py-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+            <button type="submit" disabled={loading} className="w-full mt-6 bg-white hover:bg-gray-200 text-black font-black uppercase tracking-[0.2em] text-xs py-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 active:scale-95">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deploy Dashboard"}
             </button>
           </form>
