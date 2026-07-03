@@ -5,7 +5,6 @@ import { Flame, ShieldAlert, Crosshair, Radio } from 'lucide-react';
 import FocusTimer from '@/app/dashboard/components/FocusTimer';
 import LiveFeed from '@/app/dashboard/components/LiveFeed';
 import Leaderboard from '@/app/dashboard/components/Leaderboard';
-import LectureEngine from '@/app/dashboard/components/LectureEngine';
 import SyllabusTracker from '@/app/dashboard/components/SyllabusTracker';
 import YouTubePlayer from '@/app/dashboard/components/YouTubePlayer'; // 🛡️ INJECTED PLAYER
 
@@ -80,8 +79,7 @@ export default async function DashboardPage() {
                    </div>
                 </div>
 
-                {/* Standard Action Modules */}
-                <LectureEngine />
+
                 <FocusTimer userId={user.id} /> 
                 <SyllabusTracker targetExam={profile?.target_exam || 'JEE'} />
             </div>
