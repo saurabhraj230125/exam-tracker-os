@@ -11,11 +11,25 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [interceptText, setInterceptText] = useState('');
 
-  // 🛡️ THE TACTICAL INTERCEPT 🛡️
-  // This listens for the exact millisecond the Google cookie drops and forces the door open.
+  // 🛡️ THE ADVANCED TACTICAL INTERCEPT 🛡️
   useEffect(() => {
+    // 1. Check if they ALREADY have a session the millisecond the page loads
+    const checkExistingSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setLoading(true);
+        setInterceptText('Session Verified. Entering Command Center...');
+        router.push('/dashboard');
+        router.refresh();
+      }
+    };
+    
+    checkExistingSession();
+
+    // 2. Listen for the exact moment the Google login finishes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' || session) {
+        setLoading(true);
         setInterceptText('Session Detected. Breaching Matrix...');
         router.push('/dashboard');
         router.refresh(); 
@@ -28,16 +42,27 @@ export default function LoginPage() {
   }, [router, supabase]);
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
-    setInterceptText('Connecting to Auth Servers...');
-    
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        // Appending ?next=/dashboard ensures the callback knows exactly where to route
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
-      },
-    });
+    try {
+      setLoading(true);
+      setInterceptText('Connecting to Auth Servers...');
+      
+      // Safely grab the exact domain we are currently on (focusmode.online vs vercel.app)
+      const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+      
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${currentOrigin}/auth/callback?next=/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+      
+    } catch (error) {
+      console.error("Auth Error:", error);
+      setLoading(false);
+      setInterceptText('Connection Failed. Try Again.');
+    }
   };
 
   return (
