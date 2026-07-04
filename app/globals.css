@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050816;
-  --foreground: #f8fafc;
+  /* Deep tactical void background */
+  --background: #05070a; 
+  /* Softened slate text to prevent retina burn during 6+ hour sessions */
+  --foreground: #e2e8f0; 
   color-scheme: dark;
 }
 
@@ -16,6 +18,60 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
   min-height: 100vh;
+  
+  /* Super smooth, razor-sharp font rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Prevent jarring jumps when clicking links */
+  scroll-behavior: smooth;
+  
+  /* Prevent horizontal bouncing on mobile */
+  overflow-x: hidden;
+}
+
+/* 🛡️ TACTICAL TEXT SELECTION */
+/* When a student highlights text, it glows tactical rose instead of default blue */
+::selection {
+  background-color: rgba(225, 29, 72, 0.3); /* Rose 500 at 30% */
+  color: #ffffff;
+}
+
+/* 🛡️ STEALTH SCROLLBARS */
+/* Kills the ugly default OS scrollbars and replaces them with a sleek wireframe line */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #05070a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e11d48; /* Ignites rose when hovered */
+}
+
+/* 🛡️ KINETIC ANIMATION ENGINE */
+
+/* 1. Button Light Sweep (Used on your homepage CTA) */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 2. Infinite Grid Pan (Makes the background look like falling data) */
+@keyframes grid-pan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(50px); } /* Matches the 50px background size perfectly */
+}
+
+.animate-grid-pan {
+  animation: grid-pan 3s linear infinite;
 }
