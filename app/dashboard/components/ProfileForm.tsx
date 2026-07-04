@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { UserCircle, MapPin, Target, Loader2, Save, ArrowLeft, Terminal } from 'lucide-react';
+import { UserCircle, MapPin, Target, Loader2, Save, ArrowLeft, Settings2, CheckCircle2 } from 'lucide-react';
 
 interface ProfileData {
   id: string;
@@ -20,17 +20,19 @@ export default function ProfileForm({ initialData }: { initialData: ProfileData 
   const [city, setCity] = useState(initialData.city || '');
   const [exam, setExam] = useState(initialData.target_exam || 'JEE');
   
-  // Tactical Lockout States
+  // Smooth, frictionless states
   const [isSaving, setIsSaving] = useState(false);
   const [isNavigatingBack, setIsNavigatingBack] = useState(false);
-  const [loadingText, setLoadingText] = useState('Lock In Identity');
+  const [loadingText, setLoadingText] = useState('Save Changes');
   const [message, setMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setMessage('');
-    setLoadingText('Encrypting Alias...');
+    setIsSuccess(false);
+    setLoadingText('Updating profile...');
 
     const { error } = await supabase
       .from('profiles' as any)
@@ -42,22 +44,20 @@ export default function ProfileForm({ initialData }: { initialData: ProfileData 
       .eq('id', initialData.id);
 
     if (error) {
-      setMessage('WARNING: Error updating identity matrix.');
+      setMessage('Something went wrong. Please try again.');
       setIsSaving(false);
-      setLoadingText('Lock In Identity');
+      setLoadingText('Save Changes');
     } else {
-      // Psychological multi-stage loading effect
-      setLoadingText('Committing to Grid...');
+      // Smooth, friendly success state
+      setLoadingText('Profile Updated!');
+      setIsSuccess(true);
+      setMessage('Your study profile has been successfully updated.');
+      router.refresh();
       
+      // Gentle auto-redirect back to the workspace
       setTimeout(() => {
-        setLoadingText('Identity Forged.');
-        setMessage('SUCCESS: New alias broadcasted to the local leaderboard.');
-        router.refresh();
-        
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 1200);
-      }, 1000);
+        router.push('/dashboard');
+      }, 1500);
     }
   };
 
@@ -67,77 +67,80 @@ export default function ProfileForm({ initialData }: { initialData: ProfileData 
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto bg-[#0a0d12]/90 backdrop-blur-xl border border-gray-800 rounded-3xl p-8 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
+    <div className="w-full max-w-lg mx-auto bg-slate-900/60 backdrop-blur-2xl border border-slate-700/50 rounded-[2.5rem] p-6 sm:p-10 shadow-2xl shadow-indigo-900/10 relative overflow-hidden">
       
-      {/* HUD Scanline Effect & Glow */}
-      <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none" />
-      <div className="absolute -top-20 -right-20 w-64 h-64 bg-rose-600/20 blur-[100px] rounded-full pointer-events-none" />
+      {/* Soft Ambient Glows */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none" />
 
-      {/* Tactile Lockout Back Button */}
+      {/* Friendly Back Button */}
       <button 
         onClick={handleBack}
         disabled={isNavigatingBack || isSaving}
-        className="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-rose-400 transition-colors mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="relative z-10 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-indigo-400 transition-colors mb-8 disabled:opacity-50"
       >
         {isNavigatingBack ? (
-          <><Loader2 className="h-4 w-4 animate-spin" /> Rerouting...</>
+          <><Loader2 className="h-4 w-4 animate-spin" /> Returning...</>
         ) : (
-          <><ArrowLeft className="h-4 w-4" /> Abort & Return</>
+          <><ArrowLeft className="h-4 w-4" /> Back to Workspace</>
         )}
       </button>
 
       <div className="mb-10 relative z-10">
         <div className="flex items-center gap-2 mb-3">
-          <Terminal className="h-5 w-5 text-rose-500" />
-          <span className="text-[10px] font-mono text-rose-500 tracking-[0.3em] uppercase">System Override</span>
+          <Settings2 className="h-5 w-5 text-indigo-400" />
+          <span className="text-[11px] font-bold text-indigo-400 tracking-widest uppercase">Profile Settings</span>
         </div>
-        <h2 className="text-3xl font-black uppercase tracking-tighter text-white">Forge Identity</h2>
-        <p className="text-xs text-gray-500 mt-3 leading-relaxed font-medium">
-          Your default identity is exposed. Enter a custom alias to remain anonymous while you hunt for the #1 rank in your local sector.
+        <h2 className="text-3xl font-extrabold tracking-tight text-white mb-3">Update Identity</h2>
+        <p className="text-sm text-slate-400 leading-relaxed">
+          Customize how you appear in the Live Study Lounge. Only your first name and city will be visible to other students.
         </p>
       </div>
 
       <form onSubmit={handleUpdate} className="space-y-6 relative z-10">
         
+        {/* Display Name Field */}
         <div className="group">
-          <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 group-focus-within:text-rose-400 transition-colors">
-            <UserCircle className="h-4 w-4" /> Phantom Alias
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 group-focus-within:text-indigo-400 transition-colors">
+            <UserCircle className="h-4 w-4" /> Display Name
           </label>
           <input 
             type="text" 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="e.g., Ghost, Rank1Hunter, Void..."
-            className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-4 text-sm text-white focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none transition-all shadow-inner font-bold tracking-wide"
+            placeholder="e.g., Rahul Kumar"
+            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl px-5 py-4 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all shadow-inner font-medium placeholder:text-slate-600"
             required
             maxLength={20}
             disabled={isSaving}
           />
         </div>
 
+        {/* City Field */}
         <div className="group">
-          <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 group-focus-within:text-rose-400 transition-colors">
-            <MapPin className="h-4 w-4" /> War Zone (Sector)
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 group-focus-within:text-indigo-400 transition-colors">
+            <MapPin className="h-4 w-4" /> Study Base (City)
           </label>
           <input 
             type="text" 
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            placeholder="e.g., Bokaro, Kota, Delhi..."
-            className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-4 text-sm text-white focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none transition-all shadow-inner font-bold tracking-wide"
+            placeholder="e.g., Bokaro"
+            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl px-5 py-4 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all shadow-inner font-medium placeholder:text-slate-600"
             required
             disabled={isSaving}
           />
         </div>
 
+        {/* Target Goal Field */}
         <div className="group">
-          <label className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-2 group-focus-within:text-rose-400 transition-colors">
-            <Target className="h-4 w-4" /> Target Protocol
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 group-focus-within:text-indigo-400 transition-colors">
+            <Target className="h-4 w-4" /> Target Goal
           </label>
           <select 
             value={exam}
             onChange={(e) => setExam(e.target.value)}
-            className="w-full bg-[#05070a] border border-gray-800 rounded-xl px-4 py-4 text-sm text-white focus:border-rose-500 focus:ring-1 focus:ring-rose-500 outline-none transition-all shadow-inner font-bold tracking-wide appearance-none"
+            className="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl px-5 py-4 text-sm text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all shadow-inner font-medium appearance-none cursor-pointer"
             disabled={isSaving}
           >
             <option value="JEE">JEE (Engineering)</option>
@@ -147,21 +150,25 @@ export default function ProfileForm({ initialData }: { initialData: ProfileData 
           </select>
         </div>
 
+        {/* Submit Button */}
         <button 
           type="submit" 
           disabled={isSaving || isNavigatingBack}
-          className="w-full mt-6 bg-white hover:bg-gray-200 text-black font-black uppercase tracking-[0.2em] text-xs py-5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-95"
+          className="w-full mt-8 bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-sm py-4 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/20 active:scale-95"
         >
-          {isSaving ? (
+          {isSaving && !isSuccess ? (
             <><Loader2 className="h-5 w-5 animate-spin" /> {loadingText}</>
+          ) : isSuccess ? (
+            <><CheckCircle2 className="h-5 w-5 text-white" /> {loadingText}</>
           ) : (
             <><Save className="h-5 w-5" /> {loadingText}</>
           )}
         </button>
 
+        {/* Success Message */}
         {message && (
-          <div className="mt-6 p-4 bg-emerald-900/20 border border-emerald-500/20 rounded-xl animate-in fade-in zoom-in duration-300">
-            <p className="text-center text-[10px] font-mono tracking-widest uppercase text-emerald-400">
+          <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl animate-in fade-in zoom-in duration-300">
+            <p className="text-center text-xs font-bold text-emerald-400">
               {message}
             </p>
           </div>
