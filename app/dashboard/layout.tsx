@@ -1,31 +1,35 @@
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import OnboardingModal from '@/app/dashboard/components/OnboardingModal';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // 🚧 MOCKED AUTH TO ENTER WORKSPACE FREELY 🚧
+  const mockUser = { id: 'mock-user-123' };
+  
+  // Set target_exam to null if you want to test seeing the Onboarding Modal
+  const mockProfile = { 
+    target_exam: 'UPSC', 
+    city: 'Bokaro' 
+  };
 
-  if (!user) {
-    redirect('/login');
-  }
-
-  // Fetch their profile
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('target_exam, city')
-    .eq('id', user.id)
-    .single();
-
-  // The Gatekeeper Logic
-  const needsOnboarding = !profile?.target_exam || !profile?.city;
+  const needsOnboarding = !mockProfile.target_exam || !mockProfile.city;
 
   return (
-    <div className="min-h-screen bg-[#05070a] text-white">
-      {needsOnboarding && <OnboardingModal userId={user.id} />}
+    <div className="min-h-screen bg-[#030305] text-zinc-200 relative selection:bg-indigo-500/30">
       
-      {/* If onboarding is needed, we still render the background so the modal overlays it nicely, but we can hide children or blur them */}
-      <div className={needsOnboarding ? 'blur-md pointer-events-none' : ''}>
+      <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      
+      {needsOnboarding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-500">
+          <OnboardingModal userId={mockUser.id} />
+        </div>
+      )}
+      
+      <div 
+        className={`transition-all duration-1000 ease-out min-h-screen ${
+          needsOnboarding 
+            ? 'blur-xl opacity-40 scale-[0.98] pointer-events-none' 
+            : 'blur-0 opacity-100 scale-100'
+        }`}
+      >
         {children}
       </div>
     </div>

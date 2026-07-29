@@ -1,7 +1,12 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+// If you see something like this in next.config.mjs, delete the redirects block!
+const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/app',
+        permanent: false,
+      },
+    ];
+  },
 };
-
-export default nextConfig;

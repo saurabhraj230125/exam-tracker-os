@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from '@vercel/analytics/react';
 // 1. Import the Google Analytics Engine
@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Focus Mode Player | Local Sector Grid",
   description: "Establish a secure connection to the local grid. Track your study sessions, defend your rank, and dominate the competitive leaderboard.",
+};
+
+// ✅ Moved themeColor here to fix the Next.js warning
+export const viewport: Viewport = {
   themeColor: "#05070a",
 };
 
@@ -30,6 +34,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning // ✅ Fixes the React Hydration crash from browser extensions
     >
       <body className="min-h-full flex flex-col bg-background text-foreground selection:bg-rose-500/30 selection:text-white">
         
