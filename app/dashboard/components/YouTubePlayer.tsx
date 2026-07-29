@@ -51,8 +51,10 @@ export default function YouTubePlayer() {
           if (theaterRef.current.requestFullscreen) {
             await theaterRef.current.requestFullscreen();
           }
-          if (window.screen?.orientation?.lock) {
-            await window.screen.orientation.lock('landscape').catch(() => {});
+          // 🚀 FIX APPLIED HERE: Added 'as any' to bypass TypeScript strict orientation checks
+          const screenOrientation = window.screen?.orientation as any;
+          if (screenOrientation?.lock) {
+            await screenOrientation.lock('landscape').catch(() => {});
           }
         } catch (e) {
           console.error("Fullscreen API Error:", e);
@@ -66,8 +68,9 @@ export default function YouTubePlayer() {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-      if (window.screen?.orientation?.unlock) {
-        window.screen.orientation.unlock();
+      const screenOrientation = window.screen?.orientation as any;
+      if (screenOrientation?.unlock) {
+        screenOrientation.unlock();
       }
     } catch (e) {
       console.error(e);
@@ -79,8 +82,9 @@ export default function YouTubePlayer() {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
         setIsTheater(false);
-        if (window.screen?.orientation?.unlock) {
-          window.screen.orientation.unlock();
+        const screenOrientation = window.screen?.orientation as any;
+        if (screenOrientation?.unlock) {
+          screenOrientation.unlock();
         }
       }
     };
@@ -191,11 +195,10 @@ export default function YouTubePlayer() {
         </div>
       )}
 
-      {/* 🖥️ TERMINAL INTERFACE (Scrollable & Unblockable) */}
+      {/* 🖥️ TERMINAL INTERFACE */}
       {activeVideo ? (
         <div className="flex flex-col h-full animate-in fade-in duration-700 bg-[#040406] overflow-hidden relative">
           
-          {/* 🚀 STRICT Z-INDEX CONTROL: This header stays strictly on top so you can ALWAYS go back */}
           <div className="flex items-center justify-between p-4 bg-[#070709]/95 backdrop-blur-xl border-b border-white/[0.05] relative z-50 shadow-lg shrink-0">
             <button 
               onClick={() => setActiveVideo(null)}
@@ -279,7 +282,6 @@ export default function YouTubePlayer() {
             </div>
           )}
 
-          {/* 🚀 THE SCROLL FIX: flex-1 coupled with overflow-y-auto lets this container scroll perfectly */}
           <div className="flex-1 w-full overflow-y-auto custom-scrollbar px-4 pb-12 pt-2">
             {results.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
