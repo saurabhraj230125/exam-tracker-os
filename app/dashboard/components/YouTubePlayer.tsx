@@ -51,10 +51,10 @@ export default function YouTubePlayer() {
           if (theaterRef.current.requestFullscreen) {
             await theaterRef.current.requestFullscreen();
           }
-          // 🚀 FIX: Bypassing TypeScript strictly for the orientation API
-          const screenAny = window.screen as any;
-          if (screenAny?.orientation?.lock) {
-            await screenAny.orientation.lock('landscape').catch(() => {});
+          // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
+          if (window.screen?.orientation?.lock) {
+            // @ts-ignore
+            await window.screen.orientation.lock('landscape').catch(() => {});
           }
         } catch (e) {
           console.error("Fullscreen API Error:", e);
@@ -68,10 +68,10 @@ export default function YouTubePlayer() {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-      // 🚀 FIX: Bypassing TypeScript strictly for the orientation API
-      const screenAny = window.screen as any;
-      if (screenAny?.orientation?.unlock) {
-        screenAny.orientation.unlock();
+      // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
+      if (window.screen?.orientation?.unlock) {
+        // @ts-ignore
+        window.screen.orientation.unlock();
       }
     } catch (e) {
       console.error(e);
@@ -83,10 +83,10 @@ export default function YouTubePlayer() {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
         setIsTheater(false);
-        // 🚀 FIX: Bypassing TypeScript strictly for the orientation API
-        const screenAny = window.screen as any;
-        if (screenAny?.orientation?.unlock) {
-          screenAny.orientation.unlock();
+        // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
+        if (window.screen?.orientation?.unlock) {
+          // @ts-ignore
+          window.screen.orientation.unlock();
         }
       }
     };
@@ -201,7 +201,6 @@ export default function YouTubePlayer() {
       {activeVideo ? (
         <div className="flex flex-col h-full animate-in fade-in duration-700 bg-[#040406] overflow-hidden relative">
           
-          {/* Strict Z-Index Control for Back Button */}
           <div className="flex items-center justify-between p-4 bg-[#070709]/95 backdrop-blur-xl border-b border-white/[0.05] relative z-50 shadow-lg shrink-0">
             <button 
               onClick={() => setActiveVideo(null)}
