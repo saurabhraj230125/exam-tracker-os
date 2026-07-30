@@ -51,10 +51,11 @@ export default function YouTubePlayer() {
           if (theaterRef.current.requestFullscreen) {
             await theaterRef.current.requestFullscreen();
           }
-          // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
-          if (window.screen?.orientation?.lock) {
-            // @ts-ignore
-            await window.screen.orientation.lock('landscape').catch(() => {});
+          
+          // 🚀 THE VERCEL FIX: Cast window.screen to 'any' to bypass TS compiler errors
+          const screenAny = window.screen as any;
+          if (screenAny?.orientation?.lock) {
+            await screenAny.orientation.lock('landscape').catch(() => {});
           }
         } catch (e) {
           console.error("Fullscreen API Error:", e);
@@ -68,10 +69,11 @@ export default function YouTubePlayer() {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-      // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
-      if (window.screen?.orientation?.unlock) {
-        // @ts-ignore
-        window.screen.orientation.unlock();
+      
+      // 🚀 THE VERCEL FIX (Exit)
+      const screenAny = window.screen as any;
+      if (screenAny?.orientation?.unlock) {
+        screenAny.orientation.unlock();
       }
     } catch (e) {
       console.error(e);
@@ -83,10 +85,11 @@ export default function YouTubePlayer() {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
         setIsTheater(false);
-        // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
-        if (window.screen?.orientation?.unlock) {
-          // @ts-ignore
-          window.screen.orientation.unlock();
+        
+        // 🚀 THE VERCEL FIX (Native Escape Key)
+        const screenAny = window.screen as any;
+        if (screenAny?.orientation?.unlock) {
+          screenAny.orientation.unlock();
         }
       }
     };
