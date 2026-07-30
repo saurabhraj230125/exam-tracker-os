@@ -45,7 +45,7 @@ export default function DashboardPage() {
         </header>
 
         {/* 3. THE "MONITOR" (Workspace) */}
-        <main className="w-full flex-1 flex flex-col min-h-0 animate-in fade-in duration-1000 delay-300 pb-2">
+        <main className="w-full flex-1 flex flex-col min-h-0 animate-in fade-in duration-1000 delay-300 pb-2 sm:pb-4">
           
           <div className="relative group rounded-[2rem] p-[1px] h-full flex flex-col overflow-hidden shadow-2xl shadow-black/50">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-white/5 opacity-50 pointer-events-none" />
@@ -54,7 +54,7 @@ export default function DashboardPage() {
                
                <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.02] mb-2 shrink-0">
                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600">
-                   <Sparkles className="h-3 w-3 text-indigo-500/50" /> Lecture Initialization
+                   <Sparkles className="h-3 w-3 text-indigo-500/50" /> Universal Search
                  </div>
                  <div className="flex gap-1.5">
                    <div className="h-2 w-2 rounded-full bg-rose-500/20" />
@@ -63,7 +63,7 @@ export default function DashboardPage() {
                  </div>
                </div>
                
-               {/* This container perfectly holds the YouTube player and prevents overlapping */}
+               {/* Player Container */}
                <div className="flex-1 w-full rounded-xl overflow-hidden bg-black/40 border border-white/[0.02] flex flex-col min-h-0 relative">
                  <YouTubePlayer />
                </div>
@@ -71,6 +71,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </main>
+        
+        {/* FOOTER HAS BEEN COMPLETELY REMOVED TO PREVENT OVERLAPPING */}
 
       </div>
     </div>

@@ -12,7 +12,6 @@ export default function YouTubePlayer() {
   const [theaterSeconds, setTheaterSeconds] = useState(0);
   const theaterRef = useRef<HTMLDivElement>(null);
 
-  // ⏱️ Theater Timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isTheater) {
@@ -33,7 +32,6 @@ export default function YouTubePlayer() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // 🎬 NATIVE FULLSCREEN & LANDSCAPE LOGIC (Vercel TS Error Proof)
   const enterTheater = async () => {
     setIsTheater(true);
     setTimeout(async () => {
@@ -42,7 +40,7 @@ export default function YouTubePlayer() {
           if (theaterRef.current.requestFullscreen) {
             await theaterRef.current.requestFullscreen();
           }
-          // @ts-ignore - Bypassing Vercel TypeScript strict checks for experimental API
+          // @ts-ignore
           if (window.screen?.orientation?.lock) {
             // @ts-ignore
             await window.screen.orientation.lock('landscape').catch(() => {});
@@ -85,7 +83,6 @@ export default function YouTubePlayer() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // 🧠 SMART YOUTUBE URL PARSER
   const extractYouTubeId = (url: string) => {
     const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = url.match(regex);
@@ -101,16 +98,15 @@ export default function YouTubePlayer() {
 
     if (videoId) {
       setActiveVideoId(videoId);
-      setInputUrl(''); // clear input
+      setInputUrl(''); 
     } else {
-      setError("Invalid link. Please paste a valid YouTube URL (e.g., https://youtu.be/...)");
+      setError("Invalid link. Please paste a valid YouTube URL.");
     }
   };
 
   return (
     <div className="w-full h-full flex flex-col relative bg-transparent">
       
-      {/* 🎬 PRO THEATER MODE */}
       {isTheater && activeVideoId && (
         <div ref={theaterRef} className="fixed inset-0 z-[99999] bg-[#020204] flex flex-col">
           <div className="flex-grow w-full relative bg-black flex items-center justify-center overflow-hidden">
@@ -118,7 +114,7 @@ export default function YouTubePlayer() {
             <div className="w-full h-full max-w-[1800px] mx-auto shadow-2xl shadow-black relative z-10">
               <iframe
                 className="w-full h-full"
-                src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&modestbranding=1&rel=0`}
+                src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&modestbranding=1&rel=0&fs=0&playsinline=1&iv_load_policy=3`}
                 title="YouTube Deep Focus Player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -165,7 +161,6 @@ export default function YouTubePlayer() {
         </div>
       )}
 
-      {/* 🖥️ TERMINAL INTERFACE */}
       {activeVideoId ? (
         <div className="flex flex-col h-full animate-in fade-in duration-700 bg-[#040406] overflow-hidden relative">
           
@@ -189,7 +184,7 @@ export default function YouTubePlayer() {
             {!isTheater && (
               <iframe
                 className="absolute inset-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&modestbranding=1&rel=0`}
+                src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&modestbranding=1&rel=0&fs=0&playsinline=1&iv_load_policy=3`}
                 title="YouTube Deep Focus Player"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -200,40 +195,41 @@ export default function YouTubePlayer() {
         </div>
       ) : (
         
-        <div className="flex flex-col h-full animate-in fade-in duration-700 items-center justify-center min-h-[400px]">
+        /* 🚀 THE FIX: Changed to overflow-y-auto, p-4, and my-auto to prevent bottom clipping on smaller screens */
+        <div className="flex flex-col h-full w-full animate-in fade-in duration-700 items-center justify-start sm:justify-center overflow-y-auto custom-scrollbar p-4">
           
-          <div className="w-full max-w-3xl mx-auto p-8 sm:p-12 rounded-[2.5rem] bg-[#070709]/50 border border-white/[0.03] shadow-2xl relative overflow-hidden group">
+          <div className="w-full max-w-2xl mx-auto p-6 sm:p-10 rounded-[2rem] bg-[#070709]/50 border border-white/[0.03] shadow-2xl relative overflow-hidden group my-auto shrink-0">
             
             <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
             <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="h-20 w-20 rounded-2xl bg-gradient-to-b from-indigo-500/20 to-transparent border border-indigo-500/20 flex items-center justify-center mb-8 shadow-inner">
-                <MonitorPlay className="h-10 w-10 text-indigo-400" />
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-b from-indigo-500/20 to-transparent border border-indigo-500/20 flex items-center justify-center mb-6 sm:mb-8 shadow-inner">
+                <MonitorPlay className="h-8 w-8 sm:h-10 sm:w-10 text-indigo-400" />
               </div>
 
-              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 mb-3 tracking-tight">
+              <h2 className="text-xl sm:text-3xl font-bold text-zinc-100 mb-3 tracking-tight">
                 Initialize Lecture
               </h2>
-              <p className="text-sm text-zinc-500 mb-10 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm text-zinc-500 mb-8 max-w-md mx-auto leading-relaxed px-4">
                 Paste any YouTube URL to strip away distractions, comments, and recommendations. Enter pure focus mode.
               </p>
 
               <form onSubmit={handleInitialize} className="relative w-full max-w-xl mx-auto">
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                  <Link2 className="h-5 w-5 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
+                <div className="absolute inset-y-0 left-0 pl-4 sm:pl-6 flex items-center pointer-events-none">
+                  <Link2 className="h-4 w-4 sm:h-5 sm:w-5 text-zinc-600 group-focus-within:text-indigo-400 transition-colors" />
                 </div>
                 <input
                   type="text"
                   value={inputUrl}
                   onChange={(e) => setInputUrl(e.target.value)}
                   placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full bg-[#040406]/80 border border-white/[0.05] text-zinc-200 text-base rounded-2xl pl-14 pr-36 py-5 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all placeholder:text-zinc-700 shadow-inner"
+                  className="w-full bg-[#040406]/80 border border-white/[0.05] text-zinc-200 text-sm sm:text-base rounded-xl sm:rounded-2xl pl-12 sm:pl-14 pr-28 sm:pr-32 py-4 sm:py-5 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all placeholder:text-zinc-700 shadow-inner"
                 />
                 <button 
                   type="submit" 
-                  className="absolute inset-y-2.5 right-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-bold px-6 rounded-xl transition-all flex items-center shadow-[0_0_20px_rgba(99,102,241,0.2)] active:scale-95"
+                  className="absolute inset-y-1.5 sm:inset-y-2.5 right-1.5 sm:right-2.5 bg-indigo-500 hover:bg-indigo-400 text-white text-xs sm:text-sm font-bold px-4 sm:px-6 rounded-lg sm:rounded-xl transition-all flex items-center shadow-[0_0_20px_rgba(99,102,241,0.2)] active:scale-95"
                 >
-                  <Sparkles className="h-4 w-4 mr-2 opacity-70" />
+                  <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-2 opacity-70" />
                   Load
                 </button>
               </form>
