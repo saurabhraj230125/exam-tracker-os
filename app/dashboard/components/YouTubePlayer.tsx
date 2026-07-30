@@ -51,10 +51,10 @@ export default function YouTubePlayer() {
           if (theaterRef.current.requestFullscreen) {
             await theaterRef.current.requestFullscreen();
           }
-          // 🚀 FIX APPLIED HERE: Added 'as any' to bypass TypeScript strict orientation checks
-          const screenOrientation = window.screen?.orientation as any;
-          if (screenOrientation?.lock) {
-            await screenOrientation.lock('landscape').catch(() => {});
+          // 🚀 FIX: Bypassing TypeScript strictly for the orientation API
+          const screenAny = window.screen as any;
+          if (screenAny?.orientation?.lock) {
+            await screenAny.orientation.lock('landscape').catch(() => {});
           }
         } catch (e) {
           console.error("Fullscreen API Error:", e);
@@ -68,9 +68,10 @@ export default function YouTubePlayer() {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       }
-      const screenOrientation = window.screen?.orientation as any;
-      if (screenOrientation?.unlock) {
-        screenOrientation.unlock();
+      // 🚀 FIX: Bypassing TypeScript strictly for the orientation API
+      const screenAny = window.screen as any;
+      if (screenAny?.orientation?.unlock) {
+        screenAny.orientation.unlock();
       }
     } catch (e) {
       console.error(e);
@@ -82,9 +83,10 @@ export default function YouTubePlayer() {
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement) {
         setIsTheater(false);
-        const screenOrientation = window.screen?.orientation as any;
-        if (screenOrientation?.unlock) {
-          screenOrientation.unlock();
+        // 🚀 FIX: Bypassing TypeScript strictly for the orientation API
+        const screenAny = window.screen as any;
+        if (screenAny?.orientation?.unlock) {
+          screenAny.orientation.unlock();
         }
       }
     };
@@ -199,6 +201,7 @@ export default function YouTubePlayer() {
       {activeVideo ? (
         <div className="flex flex-col h-full animate-in fade-in duration-700 bg-[#040406] overflow-hidden relative">
           
+          {/* Strict Z-Index Control for Back Button */}
           <div className="flex items-center justify-between p-4 bg-[#070709]/95 backdrop-blur-xl border-b border-white/[0.05] relative z-50 shadow-lg shrink-0">
             <button 
               onClick={() => setActiveVideo(null)}
